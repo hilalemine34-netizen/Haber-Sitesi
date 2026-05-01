@@ -17,10 +17,11 @@ class BaseRepository:
         conn = self.get_connection()
 
         if conn is None:
-            return None
+            return None, None
 
         try:
             cursor = conn.cursor(dictionary=dictionary, buffered=True)
-            return cursor
-        except:
-            return None
+            return cursor, conn
+        except Exception as e:
+            print("Cursor hatası:", e)
+            return None, None
