@@ -1,5 +1,3 @@
-import mysql.connector
-
 class BaseRepository:
 
     def get_connection(self):
@@ -12,11 +10,17 @@ class BaseRepository:
                 autocommit=True
             )
         except Exception as e:
-            print("DB bağlantısı kurulamadı:", e)
+            print("DB bağlantısı yok:", e)
             return None
 
     def get_cursor(self, dictionary=False):
         conn = self.get_connection()
-        conn.ping(reconnect=True)  #  otomatik reconnect
-        cursor = conn.cursor(dictionary=dictionary, buffered=True)
-        return cursor, conn
+
+        if conn is None:
+            return None
+
+        try:
+            cursor = conn.cursor(dictionary=dictionary, buffered=True)
+            return cursor
+        except:
+            return None
