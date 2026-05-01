@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.article-container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+.back-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.article-title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.meta {
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.article-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.article-content {
+    line-height: 1.8;
+    font-size: 16px;
+    color: #334155;
+}
+
+/* RELATED */
+.related-card {
+    display: flex;
+    gap: 12px;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+.related-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* COMMENTS */
+.comment-card {
+    display: flex;
+    gap: 12px;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: 0.2s;
+}
+
+.comment-card:hover {
+    transform: translateX(4px);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.comment-user {
+    font-weight: bold;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #888;
+}
+
+/* FORM */
+.comment-box {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline: none;
+    resize: none;
+}
+
+textarea:focus {
+    border-color: #3b82f6;
+}
+
+.btn {
+    margin-top: 10px;
+    padding: 10px 16px;
+    background: #22c55e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: #16a34a;
+}
+</style>
+
+<div class="article-container">
+
+    <a href="/" class="back-link">← Back Home</a>
+
+    <h1 class="article-title">
+        {{ article.title if article.title else "No title" }}
+    </h1>
+
+    <p class="meta">
+        👁️ {{ view_count }} views
+    </p>
+
+    {% if article.image_url %}
+        <img src="{{ article.image_url }}" class="article-image">
+    {% endif %}
+
+    <p class="article-content">
+        {{ (article.content or "No content available.").replace('\n', '<br><br>') | safe }}
+    </p>
+
+    <hr style="margin:30px 0;">
+
+    <!-- 🔥 RELATED -->
+    {% if related_articles %}
+    <h2>🧠 Recommended News</h2>
+
+    {% for r in related_articles %}
+    <div class="related-card">
+
+        {% if r.image_url %}
+        <img src="{{ r.image_url }}"
+             style="width:80px; height:60px; object-fit:cover; border-radius:6px;">
+        {% endif %}
+
+        <div>
+            <a href="{{ url_for('article_detail', id=r.id) }}"
+               style="text-decoration:none; color:#333; font-weight:bold;">
+                {{ (r.title or "No title")[:60] }}...
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
+    <hr style="margin:30px 0;">
+    {% endif %}
+
+    <!-- 💬 COMMENTS -->
+    <h2>💬 Comments</h2>
+
+    {% for c in comments %}
+    <div class="comment-card">
+
+        <div class="avatar">
+            {{ c.username[0]|upper }}
+        </div>
+
+        <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between;">
+                <span class="comment-user">@{{ c.username }}</span>
+                <span class="comment-time">
+                    {{ c.created_at.strftime('%d %b %Y %H:%M') if c.created_at else '' }}
+                </span>
+            </div>
+
+            <p style="margin-top:6px;">
+                {{ c.content }}
+            </p>
+        </div>
+
+    </div>
+
+    {% else %}
+    <p style="color:#888;">No comments yet</p>
+    {% endfor %}
+
+    <hr style="margin:30px 0;">
+
+    <!-- ✍️ FORM -->
+    <form method="POST" action="{{ url_for('add_comment') }}" class="comment-box">
+
+        <input type="hidden" name="article_id" value="{{ article.id }}">
+
+        <textarea name="content" placeholder="Write your comment..." required></textarea>
+
+        <button class="btn">Send</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

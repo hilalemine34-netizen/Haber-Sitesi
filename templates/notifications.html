@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="max-width:800px; margin:auto;">
+
+    <h2 style="margin-bottom:20px;">🔔 Notification</h2>
+
+    {% if notifications %}
+        {% for n in notifications %}
+        <div style="
+            background:white;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:10px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.05);
+        ">
+            <strong>{{ n.title }}</strong><br>
+
+            <a href="{{ url_for('article_detail', id=n.article_id) }}">
+                {{ n.message }}
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#888;">Hiç bildirimin yok</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

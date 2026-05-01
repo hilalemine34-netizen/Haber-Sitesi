@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div
+    style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+
+    <h2 style="text-align: center; color: #333;">⚙️ Feed Settings</h2>
+    <p style="text-align: center; color: #666;">
+        Select the categories you want to follow and personalize your homepage.
+    </p>
+
+    <form action="{{ url_for('settings') }}" method="POST" style="margin-top: 20px;">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+
+            {% for cat in categories %}
+            <label style="
+                display: flex;
+                align-items: center;
+                padding: 10px;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: 0.2s;
+            ">
+                <input type="checkbox"
+                       name="categories"
+                       value="{{ cat.id }}"
+                       {{ 'checked' if cat.name in user_categories else '' }}
+                       style="margin-right: 10px; transform: scale(1.2);">
+
+                <span style="text-transform: capitalize; font-weight: bold; color: #444;">
+                    {{ cat.name }}
+                </span>
+            </label>
+            {% endfor %}
+
+        </div>
+
+        <button type="submit"
+            style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
+            Save My Preferences
+        </button>
+
+    </form>
+</div>
+{% endblock %}

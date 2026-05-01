@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* TITLE */
+.title {
+    text-align: center;
+    margin: 25px 0;
+    font-size: 32px;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+/* TRENDING BAR */
+.trending-bar {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+    color: white;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.trending-label {
+    background: white;
+    color: red;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* CATEGORY */
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.category-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    text-decoration: none;
+    color: #333;
+    transition: 0.2s;
+}
+
+.category-btn:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.active {
+    background: #3b82f6;
+    color: white;
+}
+
+/* TRENDING CARD */
+.trend-card {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: 0.2s;
+}
+
+.trend-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+}
+
+/* GRID */
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* ARTICLE CARD */
+.article-card {
+    width: 300px;
+    background: white;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    transition: 0.2s;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 30px rgba(0,0,0,0.15);
+}
+
+.article-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.article-title {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.meta {
+    font-size: 12px;
+    color: #888;
+}
+
+.desc {
+    font-size: 14px;
+    color: #555;
+}
+
+.btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: #3b82f6;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #2563eb;
+}
+</style>
+
+<div class="container">
+
+    <h1 class="title">📰 News Portal</h1>
+
+    <!-- TRENDING BAR -->
+    {% if breaking_news %}
+    <div class="trending-bar">
+        <div class="trending-label">🚨 TRENDING</div>
+
+        <marquee onmouseover="this.stop();" onmouseout="this.start();">
+            <a href="{{ url_for('article_detail', id=breaking_news.id) }}"
+               style="color:white; text-decoration:none;">
+                {{ breaking_news.title }}
+            </a>
+        </marquee>
+    </div>
+    {% endif %}
+
+    <!-- CATEGORY -->
+    <div class="categories">
+
+        {% set categories = [
+        ('all', '🏠 All'),
+        ('technology', 'Technology'),
+        ('business', 'Economy'),
+        ('sports', 'Sports'),
+        ('science', 'Science'),
+        ('entertainment', 'Entertainment'),
+        ('health', 'Health')
+        ] %}
+
+        {% for code, name in categories %}
+        <a href="{{ url_for('home', category=code) }}"
+           class="category-btn {% if active_cat == code %}active{% endif %}">
+            {{ name }}
+        </a>
+        {% endfor %}
+
+        <a href="{{ url_for('favorites') }}" class="category-btn">⭐ Favorites</a>
+        <a href="{{ url_for('liked_articles') }}" class="category-btn">❤️ Liked</a>
+    </div>
+
+    <!-- TRENDING LIST -->
+    {% if trending_articles %}
+    <h2>🔥 Trending News</h2>
+
+    {% for t in trending_articles %}
+    <div class="trend-card">
+
+        {% if t.image_url %}
+        <img src="{{ t.image_url }}" style="width:80px; height:60px; border-radius:8px;">
+        {% endif %}
+
+        <div>
+            <a href="{{ url_for('article_detail', id=t.id) }}"
+               style="text-decoration:none; color:#333; font-weight:bold;">
+                {{ (t.title or "No title")[:60] }}...
+            </a>
+
+            <div class="meta">
+                👁️ {{ t.view_count or 0 }}
+                ❤️ {{ t.like_count or 0 }}
+                📰 {{ t.source_name }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <hr style="margin:30px 0;">
+    {% endif %}
+
+    <!-- ALL NEWS -->
+    <h2>{{ page_title if page_title else "📰 All News" }}</h2>
+
+    <div class="grid">
+
+    {% for article in articles %}
+    <div class="article-card">
+
+        {% if article.image_url %}
+        <img src="{{ article.image_url }}">
+        {% endif %}
+
+        <div class="article-title">
+            {{ (article.title or "No title")[:60] }}...
+        </div>
+
+        <div class="meta">
+            👁️ {{ article.view_count or 0 }}
+            📰 {{ article.source_name }}
+        </div>
+
+        <div class="desc">
+            {{ (article.content or "No content")[:120] }}...
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:8px;">
+            <a href="{{ url_for('like', id=article.id) }}" style="color:#ff4757;">
+                ❤️ {{ article.like_count or 0 }}
+            </a>
+
+            <a href="{{ url_for('add_favorite', id=article.id) }}" style="color:#ffc107;">
+                ⭐
+            </a>
+        </div>
+
+        <a href="{{ url_for('article_detail', id=article.id) }}">
+            <button class="btn">Read →</button>
+        </a>
+
+    </div>
+    {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}
